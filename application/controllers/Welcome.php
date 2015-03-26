@@ -21,7 +21,36 @@ class Welcome extends Application {
     function index()
     {
 	// Build a list of orders
-	
+        /* Load Directory Helper */
+	$this->load->helper('directory');
+        
+        /* Get all files in directory */
+        $files = directory_map('./data');
+        
+        /* Filter files to get "order~.xml" */
+        $filesFiltered = array();
+        foreach($files as $file)
+        {
+            $test = ".xml";
+            $fileStart = "order";
+            if ((substr_compare($file, $test, strlen($file)-strlen($test), strlen($test)) === 0)
+                    and (substr_compare($file, $fileStart, 0, 5) === 0) )
+            {
+                array_push($filesFiltered, $file);
+            }
+        }   
+        
+        /* Create order associative array */
+        $this->data['orders'] = array();
+        foreach ($filesFiltered as $file)
+        {
+            $order = array();
+            $order['orderName'] = substr($file, 0, strlen($file) - 4);
+            $order['fileName'] = $file;
+            array_push($this->data['orders'], $order);
+        }
+        
+        
 	// Present the list to choose from
 	$this->data['pagebody'] = 'homepage';
 	$this->render();
