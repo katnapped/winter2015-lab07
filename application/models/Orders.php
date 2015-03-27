@@ -48,28 +48,61 @@ class Orders extends CI_Model
         
         $burgers = array();
         
-        $count = 0;
+        $count = 1;
         foreach ($burgers_objs as $obj)
         {
             $newburger['count'] = $count;
             $newburger['patty'] = $obj->patty['type'];
             
             /* Get top cheese */                        
-            $newburger['cheeses'] = $obj->cheeses['top'] . ' (top) ' . $obj->cheeses['bottom'] . ' (bottom)';
+            $newburger['cheeses'] = '';
+            if (isset($obj->cheeses['top']))
+            {
+                $newburger['cheeses'] .= $obj->cheeses['top'] . ' (top) ';
+            }
+            if (isset($obj->cheeses['bottom']))
+            {
+                $newburger['cheeses'] .= $obj->cheeses['bottom'] . ' (bottom)';
+            }
             
             /* Get Toppings */
             $newburger['toppings'] = '';
-            foreach ($obj->topping as $topping)
+            if (isset($obj->topping))
             {
-                $newburger['toppings'] .= $topping['type'] . ' ';
-            }
+                $newburger['toppings'] = 'Topping: ';
+                $moreThanTwo = FALSE;
+                foreach ($obj->topping as $topping)
+                {
+                    if ($moreThanTwo == TRUE)
+                    {
+                        $newburger['toppings'] .= ', ';
+                    }
+                    $newburger['toppings'] .= $topping['type'];
+                    $moreThanTwo = TRUE;
+                }
+                $newburger['toppings'] .= '</br>';
+            }            
 
             /* Get Sauces */
             $newburger['sauce'] = '';
-            if (isset($obj->sauce['type']))
+            if (isset($obj->sauce))
             {
-                $newburger['sauce'] .= "Sauce: " . $obj->sauce['type'];
+                $newburger['sauce'] .= "Sauce: ";
+                $moreThanTwo = FALSE;
+                foreach ($obj->sauce as $sauce)
+                {
+                    if ($moreThanTwo == TRUE)
+                    {
+                        $newburger['sauce'] .= ', ';
+                    }
+                    $newburger['sauce'] .= $sauce['type'] . ' ';
+                    $moreThanTwo = TRUE;
+                }
+                $newburger['sauce'] .= '</br>';
             }
+            
+            /* Get burger price */
+            $newburger['price'] = $this->GetBurgerPrice($obj);
             
             $count++;
             
@@ -77,6 +110,43 @@ class Orders extends CI_Model
         }
         
         return $burgers;
+    }
+    
+    /* Get Burger Price */
+    private function GetBurgerPrice($burger)
+    {
+        $this->load->model('menu');
+        
+        $price = 0;
+        $price += $this->menu->GetPattyPrice((string)$burger->patty['type']);
+        $price += $this->menu->GetCheesePrice((string)$burger->cheeses['top']);
+        $price += $this->menu->GetCheesePrice((string)$burger->cheeses['bottom']);
+        foreach ($burger->topping as $topping)
+        {
+            $price += $this->menu->GetToppingPrice((string)$topping['type']);
+        }
+        foreach ($burger->sauce as $sauce)
+        {
+            $price += $this->menu->GetSaucePrice((string)$sauce['type']);
+        }
+
+        
+        
+        return $price;
+    }
+    
+    /* Get order total */
+    public function GetOrderTotal($filename)
+    {
+        $burgers = $this->GetBurgers($filename);
+        
+        $total = 0;
+        foreach ($burgers as $burger)
+        {
+            $total += $burger['price'];
+        }
+        
+        return $total;
     }
 }
 

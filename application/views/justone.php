@@ -8,9 +8,11 @@ A burger?
 *Burger #{count}*</br>
 Base: {patty} burger </br>
 Cheese: {cheeses}</br>
-Topping: {toppings}</br>
-{sauce}</br>
+{toppings}
+{sauce}
+Burger Total: ${price}</br>
 </br>
 {/burgers}
-
+</br>
+Order Total: ${total}</br>
 </div>

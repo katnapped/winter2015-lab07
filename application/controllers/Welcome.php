@@ -69,6 +69,7 @@ class Welcome extends Application {
         $this->data['customer'] = $this->orders->GetCustomerName($filename);
         $this->data['order_type'] = $this->orders->GetOrderType($filename);
         $this->data['burgers'] = $this->orders->GetBurgers($filename);
+        $this->data['total'] = $this->orders->GetOrderTotal($filename);
         
         //print_r($this->data['burgers']);
         
