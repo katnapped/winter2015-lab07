@@ -23,6 +23,7 @@ class Welcome extends Application {
 	// Build a list of orders
         /* Load Directory Helper */
 	$this->load->helper('directory');
+
         
         /* Get all files in directory */
         $files = directory_map('./data');
@@ -44,9 +45,12 @@ class Welcome extends Application {
         $this->data['orders'] = array();
         foreach ($filesFiltered as $file)
         {
+            $xml = simplexml_load_file(DATAPATH . $file);
+            
             $order = array();
-            $order['orderName'] = substr($file, 0, strlen($file) - 4);
+            $order['orderName'] = substr($file, 0, strlen($file) - 4) . ' (' . $xml->customer . ')';
             $order['fileName'] = $file;
+            
             array_push($this->data['orders'], $order);
         }
         
